@@ -50,34 +50,13 @@ sub MEROSS_DEVICE_Set($@) {
 
 	return "\"set $name\" needs at least one argument" unless(defined($cmd));
 
-	if (ReadingsVal($name, ".access_token", "") eq "") {
-		if ($cmd eq "accessCode") {
-			NIBE_HEATPUMP_requestToken($hash, $args[0]);
-		} else {
-			return "Unknown argument $cmd, choose one of accessCode" ;
-		}
-	} elsif (!exists $attr{$name}{systemId}) {
-		if ($cmd eq "systemId") {
-			$attr{$name}{systemId} = $args[0];
-			InternalTimer(gettimeofday() + $attr{$hash->{NAME}}{refreshInterval}, "NIBE_HEATPUMP_refresh", $hash);
-		} else {
-			return "Unknown argument $cmd, choose one of systemId" ;
-		}
-	} else {
-		if ($cmd eq "refresh") {
-			NIBE_HEATPUMP_refresh($hash);
-		} elsif ($cmd eq "refreshSoftware") {
-			NIBE_HEATPUMP_refreshSoftware($hash);
-		} elsif ($cmd eq "mode") {
-			if ($args[0] =~ m/(DEFAULT_OPERATION|AWAY_FROM_HOME|VACATION)/) {
-				NIBE_HEATPUMP_setSmartHomeMode($hash, $args[0]);
-			} else {
-				return "Unknown value $args[0] for $cmd, choose one of DEFAULT_OPERATION AWAY_FROM_HOME VACATION";
-			}
-		} else {
-			return "Unknown argument $cmd, choose one of mode:DEFAULT_OPERATION,AWAY_FROM_HOME,VACATION refresh:noArg refreshSoftware:noArg";
-		}
-	}
+    if ($cmd eq "open") {
+
+    } elsif ($cmd eq "close") {
+
+    } else {
+    	return "Unknown argument $cmd, choose one of open close" ;
+    }
 }
 
 sub MEROSS_DEVICE_Attr(@) {
