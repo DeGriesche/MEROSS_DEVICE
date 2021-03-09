@@ -5,9 +5,9 @@ set controlsFile="controls_meross_device.txt"
 
 type nul > %controlsFile%
 CALL :appendLines "FHEM/98_MEROSS_DEVICE.pm"
-CALL :appendLines "FHEM/python/config.ini"
-CALL :appendLines "FHEM/python/meross.py"
-CALL :appendLines "FHEM/python/garage_door_opener.py"
+CALL :appendLines "FHEM/meross/config.ini"
+CALL :appendLines "FHEM/meross/meross.py"
+CALL :appendLines "FHEM/meross/garage_door_opener.py"
 EXIT /B %ERRORLEVEL%
 
 :appendLines

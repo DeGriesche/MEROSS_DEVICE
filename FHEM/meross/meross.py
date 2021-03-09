@@ -8,7 +8,7 @@ import fhem
 from meross_iot.http_api import MerossHttpClient
 from meross_iot.manager import MerossManager
 
-from FHEM.python.garage_door_opener import GarageDoorOpener
+from FHEM.meross.garage_door_opener import GarageDoorOpener
 
 _logger = logging.getLogger("meross_device")
 
