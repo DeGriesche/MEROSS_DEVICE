@@ -22,8 +22,8 @@ sub MEROSS_DEVICE_Define($$) {
 
 	$hash->{name} = $param[0];
 	$hash->{deviceId} = $param[2];
-#	$attr{$name}{devStateIcon} = 'DEFAULT_OPERATION:nibe_mode_default@green AWAY_FROM_HOME:nibe_mode_away@yellow VACATION:nibe_mode_vacation@red';
-#	$attr{$name}{icon} = "nibe_heatpump";
+	#	$attr{$name}{devStateIcon} = 'DEFAULT_OPERATION:nibe_mode_default@green AWAY_FROM_HOME:nibe_mode_away@yellow VACATION:nibe_mode_vacation@red';
+	#	$attr{$name}{icon} = "nibe_heatpump";
 
 	AnalyzeCommand($hash, "set ".$name." getStatus");
 	AnalyzeCommand($hash, "set ".$name." getDeviceType");
@@ -50,16 +50,20 @@ sub MEROSS_DEVICE_Set($@) {
 	return "\"set $name\" needs at least one argument" unless(defined($cmd));
 
 	if ($cmd eq "open") {
-		print("opening ".$name);
-    } elsif ($cmd eq "close") {
-		print("closing ".$name);
+		readingsSingleUpdate($hash, "position", "1", 0);
+	} elsif ($cmd eq "close") {
+		readingsSingleUpdate($hash, "position", "0", 0);
+	} elsif ($cmd eq "position") {
+		if ($args[0] eq 0) {
+			readingsSingleUpdate($hash, "state", "open", 1);
+		} else {
+			readingsSingleUpdate($hash, "state", "close", 1);
+		}
 	} elsif ($cmd eq "getStatus") {
-		#print("getStatus ".$name);
 	} elsif ($cmd eq "getDeviceType") {
-		#print("getDeviceType ".$name);
 	} else {
-    	return "Unknown argument $cmd, choose one of open close getStatus getDeviceType" ;
-    }
+		return "Unknown argument $cmd, choose one of open:noArg close:noArg position:slider,0,100,100	 getStatus:noArg getDeviceType:noArg" ;
+	}
 }
 
 sub MEROSS_DEVICE_Attr(@) {
