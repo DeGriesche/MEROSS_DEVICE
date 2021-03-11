@@ -1,98 +1,102 @@
 import asyncio
 import configparser
-import logging
-import queue
+import logging.config
+from queue import Queue
+import threading
 from threading import Thread
 
 import fhem
 from meross_iot.http_api import MerossHttpClient
 from meross_iot.manager import MerossManager
 
-from FHEM.meross.garage_door_opener import GarageDoorOpener
+from garage_door_opener import GarageDoorOpener
 
+# _configApplication = "/opt/fhem/FHEM/meross/config.ini"
+# _configLogging = "/opt/fhem/FHEM/meross/logging.conf"
+_configApplication = "config.ini"
+_configLogging = "logging.conf"
+
+logging.config.fileConfig(_configLogging)
 _logger = logging.getLogger("meross_device")
 
 
-def connect_fhem(basePath: str, protocol: str, port: str, user: str, password: str):
-    _logger.info('Establishing FHEM connection')
-    return fhem.Fhem(basePath, protocol=protocol, port=port, username=user, password=password)
+class Meross:
+
+    def __init__(self):
+        self._devices_by_uuid = {}
+        self._devices_by_fhem_name = {}
+        self._meross = None
+        self._http_api_client = None
+
+        self._config = configparser.ConfigParser()
+        self._config.read(_configApplication)
+
+    async def run(self):
+        _logger.info("----- CONNECTING TO FHEM -----")
+        fhem_connection = self.connect_fhem()
+
+        _logger.info("----- CONNECTING TO MEROSS -----")
+        self._meross = await self.connect_meross()
+
+        _logger.info("----- INITIALIZING DEVICES -----")
+        devices = self._meross.find_devices()
+        for dev in devices:
+            if dev.type == "msg100":
+                meross_device = GarageDoorOpener(dev, fhem_connection)
+                await meross_device.async_update()
+                _logger.debug("NEW DEVICE: " + str(meross_device))
+                self._devices_by_uuid[meross_device.meross_id()] = meross_device
+                self._devices_by_fhem_name[meross_device.fhem_name()] = meross_device
+
+        _logger.info("----- LISTEN TO FHEM -----")
+        que = Queue()
+        t = threading.Thread(target=self.start_listen_to_fhem, args=(que,))
+        t.daemon = True
+        t.start()
+
+        _logger.info("----- Initialization finished -----")
+
+    def connect_fhem(self):
+        _logger.info('Establishing FHEM connection')
+        config = self._config["FHEM"]
+        return fhem.Fhem(config["basePath"], protocol=config["protocol"], port=config["port"], username=config["user"], password=config["password"])
+
+    async def connect_meross(self):
+        config = self._config["MEROSS"]
+        self._http_api_client = await MerossHttpClient.async_from_user_password(email=config["user"], password=config["password"])
+        meross = MerossManager(http_client=self._http_api_client)
+        await meross.async_init()
+        await meross.async_device_discovery()
+        return meross
+
+    async def disconnect_meross(self):
+        self._meross.close()
+        await self._http_api_client.async_logout()
+
+    def start_listen_to_fhem(self, que: Queue):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(self.listen_to_fhem(que))
+        loop.close()
+
+    async def listen_to_fhem(self, que: Queue):
+        fhemev = fhem.FhemEventQueue(self._config["FHEM"]["basePath"], que)
+        while True:
+            ev = que.get()
+            if ev['devicetype'] == "MEROSS_DEVICE":
+                _logger.debug(ev)
+                meross_device = self._devices_by_fhem_name.get(ev['device'])
+                await meross_device.on_fhem_action(ev)
+            que.task_done()
 
 
-async def connect_meross(user: str, password: str):
-    global http_api_client
-    http_api_client = await MerossHttpClient.async_from_user_password(email=user, password=password)
-    meross = MerossManager(http_client=http_api_client)
-    await meross.async_init()
-    await meross.async_device_discovery()
-    return meross
-
-
-async def disconnect_meross():
-    meross.close()
-    await http_api_client.async_logout()
-
-
-async def listen_to_fhem(basePath: str):
-    _logger.info('Establishing FHEM event queue')
-    que = queue.Queue()
-    fhemev = fhem.FhemEventQueue(basePath, que)
-    while True:
-        ev = que.get()
-        if ev['devicetype'] == "MEROSS_DEVICE":
-            meross_device = devices_by_fhem_name.get(ev['device'])
-            await meross_device.on_fhem_action(ev)
-        que.task_done()
-
-
-async def main(loop):
-    global meross
-    global devices_by_uuid
-    global devices_by_fhem_name
-
-    devices_by_uuid = {}
-    devices_by_fhem_name = {}
-
-    config = configparser.ConfigParser()
-    config.read('config.ini')
-
-    _logger.info("----- CONNECTING TO FHEM -----")
-    fhem_connection = connect_fhem(config["FHEM"]["basePath"], config["FHEM"]["protocol"], config["FHEM"]["port"],
-                                   config["FHEM"]["user"], config["FHEM"]["password"])
-
-    _logger.info("----- CONNECTING TO MEROSS -----")
-    meross = await connect_meross(config["MEROSS"]["user"], config["MEROSS"]["password"])
-
-    _logger.info("----- INITIALIZING DEVICES -----")
-    devices = meross.find_devices()
-    for dev in devices:
-        if dev.type == "msg100":
-            meross_device = GarageDoorOpener(dev, fhem_connection)
-            await meross_device.async_update()
-            _logger.debug("NEW DEVICE: " + str(meross_device))
-            devices_by_uuid[meross_device.meross_id()] = meross_device
-            devices_by_fhem_name[meross_device.fhem_name()] = meross_device
-
-    _logger.info("----- LISTEN TO FHEM -----")
-    asyncio.run_coroutine_threadsafe(listen_to_fhem(config["FHEM"]["basePath"]), loop)
-
-    _logger.info("----- Initialization finished -----\n\n\n\n")
-
-    # await disconnect_meross()
+def start():
+    loop = asyncio.get_event_loop()
+    thread = Thread(target=loop.run_forever)
+    thread.start()
+    app = asyncio.run_coroutine_threadsafe(Meross().run(), loop)
+    app.result()
 
 
 if __name__ == '__main__':
-    meross_root_logger = logging.getLogger("meross_iot")
-    meross_root_logger.setLevel(logging.INFO)
-
-    # On Windows + Python 3.8, you should uncomment the following
-    #    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    #    loop = asyncio.get_event_loop()
-    #    loop.run_until_complete(main())
-    #    loop.close()
-
-    loop = asyncio.get_event_loop()
-    loop.set_debug(True)
-    thread = Thread(target=loop.run_forever)
-    thread.start()
-    app = asyncio.run_coroutine_threadsafe(main(loop), loop)
-    app.result()
+    start()

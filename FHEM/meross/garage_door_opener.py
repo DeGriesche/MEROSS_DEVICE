@@ -49,15 +49,13 @@ class GarageDoorOpener:
         return self._device.get_is_open()
 
     async def open(self):
-        _logger.info(f"Opening {self.meross_name(self)}...")
+        _logger.info(f"Opening {self.meross_name()}...")
         await self._device.async_open(chanel=0)
-        await self.async_update()
         _logger.debug("Door opened!")
 
     async def close(self):
-        _logger.info(f"Closing {self.meross_name(self)}...")
+        _logger.info(f"Closing {self.meross_name()}...")
         await self._device.async_close()
-        await self.async_update()
         _logger.debug("Door closed!")
 
     def set_fhem_state(self, opened: bool):
