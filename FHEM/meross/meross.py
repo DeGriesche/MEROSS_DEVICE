@@ -11,10 +11,10 @@ from meross_iot.manager import MerossManager
 
 from garage_door_opener import GarageDoorOpener
 
-# _configApplication = "/opt/fhem/FHEM/meross/config.ini"
-# _configLogging = "/opt/fhem/FHEM/meross/logging.conf"
-_configApplication = "config.ini"
-_configLogging = "logging.conf"
+_configApplication = "/opt/fhem/FHEM/meross/config.ini"
+_configLogging = "/opt/fhem/FHEM/meross/logging.conf"
+#_configApplication = "config.ini"
+#_configLogging = "logging.conf"
 
 logging.config.fileConfig(_configLogging)
 _logger = logging.getLogger("meross_device")
@@ -48,7 +48,7 @@ class Meross:
                 self._devices_by_uuid[meross_device.meross_id()] = meross_device
                 self._devices_by_fhem_name[meross_device.fhem_name()] = meross_device
 
-        _logger.info("----- LISTEN TO FHEM -----")
+        _logger.info("----- START LISTEN TO FHEM -----")
         que = Queue()
         t = threading.Thread(target=self.start_listen_to_fhem, args=(que,))
         t.daemon = True

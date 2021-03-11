@@ -1,6 +1,8 @@
 DEL ./FHEM/98_MEROSS_DEVICE.pm
-UPD 2021-03-09_13:06:15 2181 FHEM/98_MEROSS_DEVICE.pm
-DEL ./FHEM/meross/meross.py
-UPD 2021-03-09_13:06:15 3271 FHEM/meross/meross.py
+UPD 2021-03-02_11:31:27 2281 FHEM/98_MEROSS_DEVICE.pm
 DEL ./FHEM/meross/garage_door_opener.py
-UPD 2021-03-09_13:06:15 3145 FHEM/meross/garage_door_opener.py
+UPD 2021-03-11_10:06:40 3158 FHEM/meross/garage_door_opener.py
+DEL ./FHEM/meross/meross.py
+UPD 2021-03-11_10:34:21 3577 FHEM/meross/meross.py
+DEL ./FHEM/meross/meross_daemon.py
+UPD 2021-03-10_10:48:22 84 FHEM/meross/meross_daemon.py
