@@ -1,3 +1,3 @@
 FHEM MEROSS_DEVICE last changes:
 2021-03-11
- - Controls file and CHANGED file
+ - 98_MEROSS_DEVICE.pm updated
