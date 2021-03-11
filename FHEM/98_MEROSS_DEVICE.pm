@@ -62,7 +62,7 @@ sub MEROSS_DEVICE_Set($@) {
 	} elsif ($cmd eq "getStatus") {
 	} elsif ($cmd eq "getDeviceType") {
 	} elsif ($cmd eq "reload") {
-		{ system("sudo /opt/fhem/FHEM/meross/meross.py &") }
+		{ system("python /opt/fhem/FHEM/meross/meross.py &") }
 	} else {
 		return "Unknown argument $cmd, choose one of open:noArg close:noArg position:slider,0,100,100 getStatus:noArg getDeviceType:noArg reload:noArg" ;
 	}
