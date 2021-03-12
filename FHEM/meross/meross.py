@@ -27,6 +27,7 @@ class Meross:
         self._devices_by_fhem_name = {}
         self._meross = None
         self._http_api_client = None
+        self._fhem_event_queue = None
 
         self._config = configparser.ConfigParser()
         self._config.read(_configApplication)
@@ -56,6 +57,15 @@ class Meross:
 
         _logger.info("----- Initialization finished -----")
 
+        await self.shutdown()
+
+    async def shutdown(self):
+        _logger.info("---- Shutting down ----")
+        self._meross.close()
+        await self._http_api_client.async_logout()
+        self._fhem_event_queue.close()
+        asyncio.get_event_loop().call_soon_threadsafe(asyncio.get_event_loop().stop)
+
     def connect_fhem(self):
         _logger.info('Establishing FHEM connection')
         config = self._config["FHEM"]
@@ -69,10 +79,6 @@ class Meross:
         await meross.async_device_discovery()
         return meross
 
-    async def disconnect_meross(self):
-        self._meross.close()
-        await self._http_api_client.async_logout()
-
     def start_listen_to_fhem(self, que: Queue):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
@@ -80,13 +86,16 @@ class Meross:
         loop.close()
 
     async def listen_to_fhem(self, que: Queue):
-        fhemev = fhem.FhemEventQueue(self._config["FHEM"]["basePath"], que)
+        self._fhem_event_queue = fhem.FhemEventQueue(self._config["FHEM"]["basePath"], que)
         while True:
             ev = que.get()
             if ev['devicetype'] == "MEROSS_DEVICE":
                 _logger.debug(ev)
-                meross_device = self._devices_by_fhem_name.get(ev['device'])
-                await meross_device.on_fhem_action(ev)
+                if ev['value'] == "shutdown":
+                    await self.shutdown()
+                else:
+                    meross_device = self._devices_by_fhem_name.get(ev['device'])
+                    await meross_device.on_fhem_action(ev)
             que.task_done()
 
 

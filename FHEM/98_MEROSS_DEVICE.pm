@@ -9,6 +9,11 @@ sub MEROSS_DEVICE_Initialize($) {
 	$hash->{UndefFn} = 'MEROSS_DEVICE_Undef';
 	$hash->{SetFn} = 'MEROSS_DEVICE_Set';
 	$hash->{AttrFn} = 'MEROSS_DEVICE_Attr';
+	$hash->{ShutdownFn} = "MEROSS_DEVICE_Shutdown";
+
+
+	reloadPythonScript();
+	AnalyzeCommand($hash, "set MEROSS_DEVICE getStatus");
 }
 
 sub MEROSS_DEVICE_Define($$) {
@@ -62,7 +67,7 @@ sub MEROSS_DEVICE_Set($@) {
 	} elsif ($cmd eq "getStatus") {
 	} elsif ($cmd eq "getDeviceType") {
 	} elsif ($cmd eq "reload") {
-		{ system("python /opt/fhem/FHEM/meross/meross.py &") }
+		reloadPythonScript();
 	} else {
 		return "Unknown argument $cmd, choose one of open:noArg close:noArg position:slider,0,100,100 getStatus:noArg getDeviceType:noArg reload:noArg" ;
 	}
@@ -74,6 +79,18 @@ sub MEROSS_DEVICE_Attr(@) {
 
 	}
 	return undef;
+}
+
+sub X_Shutdown ($) {
+	my ( $hash ) = @_;
+	AnalyzeCommand($hash, "set MEROSS_DEVICE shutdown");
+}
+
+sub reloadPythonScript() {
+	my $runningProcesses = qx "pgrep -fl [m]eross.py | wc -l";
+	if ($runningProcesses == "0") {
+		{ system("python /opt/fhem/FHEM/meross/meross.py &") };
+	}
 }
 
 1;
