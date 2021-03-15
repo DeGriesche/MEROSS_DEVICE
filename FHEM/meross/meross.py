@@ -57,8 +57,6 @@ class Meross:
 
         _logger.info("----- Initialization finished -----")
 
-        await self.shutdown()
-
     async def shutdown(self):
         _logger.info("---- Shutting down ----")
         self._meross.close()
