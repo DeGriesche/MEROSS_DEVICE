@@ -1,3 +1,12 @@
-FHEM MEROSS_DEVICE last changes:
-2021-03-15
- - autostart
+MEROSS DEVICE last changes:
+2022-01-11
+- autostart
+- autostart
+- control file update
+- gitlab workflow
+- Add files via upload
+- gitlab workflow
+- Merge remote-tracking branch 'origin/master'
+- gitlab workflow
+- Rename workflow.yml to .github/workflows/workflow.yml
+- Delete .github/_workflows directory
