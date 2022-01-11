@@ -55,22 +55,28 @@ sub MEROSS_DEVICE_Set($@) {
 	return "\"set $name\" needs at least one argument" unless(defined($cmd));
 
 	if ($cmd eq "open") {
-		readingsSingleUpdate($hash, "position", "1", 0);
+		readingsBeginUpdate($hash);
+		readingsBulkUpdate($hash, "position", "1");
+		readingsEndUpdate($hash, 1);
 	} elsif ($cmd eq "close") {
-		readingsSingleUpdate($hash, "position", "0", 0);
+		readingsBeginUpdate($hash);
+		readingsBulkUpdate($hash, "position", "0");
+		readingsEndUpdate($hash, 1);
 	} elsif ($cmd eq "position") {
 		if ($args[0] eq 0) {
-			readingsSingleUpdate($hash, "state", "open", 1);
-		} else {
 			readingsSingleUpdate($hash, "state", "close", 1);
+		} else {
+			readingsSingleUpdate($hash, "state", "open", 1);
 		}
 	} elsif ($cmd eq "getStatus") {
 	} elsif ($cmd eq "getDeviceType") {
 	} elsif ($cmd eq "reload") {
 		reloadPythonScript();
+	} elsif ($cmd eq "shutdown") {
 	} else {
-		return "Unknown argument $cmd, choose one of open:noArg close:noArg position:slider,0,100,100 getStatus:noArg getDeviceType:noArg reload:noArg" ;
+		return "Unknown argument $cmd, choose one of open:noArg close:noArg position:slider,0,100,100 getStatus:noArg getDeviceType:noArg reload:noArg shutdown:noArg" ;
 	}
+	return (undef, 0);
 }
 
 sub MEROSS_DEVICE_Attr(@) {
@@ -87,9 +93,9 @@ sub X_Shutdown ($) {
 }
 
 sub reloadPythonScript() {
-	my $runningProcesses = qx "pgrep -fl [m]eross.py | wc -l";
+	my $runningProcesses = qx "pgrep -fl [m]eross_daemon.py | wc -l";
 	if ($runningProcesses == "0") {
-		{ system("python /opt/fhem/FHEM/meross/meross.py &") };
+		{ system("python /opt/fhem/FHEM/meross/meross_daemon.py &") };
 	}
 }
 

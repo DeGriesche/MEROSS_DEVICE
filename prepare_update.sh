@@ -1,15 +1,16 @@
 #!/bin/bash
-
 rm controls_meross_device.txt
 
-find ./FHEM -type f \( -name "*.pm" -or -name "*.py" \) -print0 | while IFS= read -r -d '' f;
-  do
-   echo "DEL ${f}" >> controls_meross_device.txt
-   out="$(date -d "@$( stat -c '%Y' $f )" +'%F_%T') $(stat -c%s $f) ${f}"
-   echo "UPD ${out//.\//}" >> controls_meross_device.txt
-done
+while IFS= read -r -d '' FILE
+do
+    TIME=$(git log --pretty=format:%cd -n 1 --date=iso -- "$FILE")
+    TIME=$(TZ=Europe/Berlin date -d "$TIME" +%Y-%m-%d_%H:%M:%S)
+    FILESIZE=$(stat -c%s "$FILE")
+	FILE=$(echo "$FILE"  | cut -c 3-)
+	printf "UPD %s %-7d %s\n" "$TIME" "$FILESIZE" "$FILE"  >> controls_meross_device.txt
+done <   <(find . \( -name "*.pm" -o -name "*.txt" -o -name "*.svg" \) -print0 | sort -z -g)
 
 # CHANGED file
-echo "FHEM MEROSS_DEVICE last changes:" > CHANGED
+echo "MEROSS DEVICE last changes:" > CHANGED
 echo $(date +"%Y-%m-%d") >> CHANGED
-echo " - $(git log -1 --pretty=%B)" >> CHANGED
+git log -n 10 --reverse --pretty="format:- %s" >> CHANGED

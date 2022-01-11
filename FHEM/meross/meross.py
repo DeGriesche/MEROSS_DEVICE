@@ -9,12 +9,13 @@ import fhem
 from meross_iot.http_api import MerossHttpClient
 from meross_iot.manager import MerossManager
 
+from FHEM.meross.plug import Plug
 from garage_door_opener import GarageDoorOpener
 
-_configApplication = "/opt/fhem/FHEM/meross/config.ini"
-_configLogging = "/opt/fhem/FHEM/meross/logging.conf"
-#_configApplication = "config.ini"
-#_configLogging = "logging.conf"
+#_configApplication = "/opt/fhem/FHEM/meross/config.ini"
+#_configLogging = "/opt/fhem/FHEM/meross/logging.conf"
+_configApplication = "config.ini"
+_configLogging = "logging.conf"
 
 logging.config.fileConfig(_configLogging)
 _logger = logging.getLogger("meross_device")
@@ -44,6 +45,12 @@ class Meross:
         for dev in devices:
             if dev.type == "msg100":
                 meross_device = GarageDoorOpener(dev, fhem_connection)
+                await meross_device.async_update()
+                _logger.debug("NEW DEVICE: " + str(meross_device))
+                self._devices_by_uuid[meross_device.meross_id()] = meross_device
+                self._devices_by_fhem_name[meross_device.fhem_name()] = meross_device
+            if dev.type == "mss310":
+                meross_device = Plug(dev, fhem_connection)
                 await meross_device.async_update()
                 _logger.debug("NEW DEVICE: " + str(meross_device))
                 self._devices_by_uuid[meross_device.meross_id()] = meross_device

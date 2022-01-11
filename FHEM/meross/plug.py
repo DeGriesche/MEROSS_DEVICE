@@ -11,7 +11,7 @@ class FhemDeviceError(object):
     pass
 
 
-class GarageDoorOpener:
+class Plug:
 
     def __init__(self, device: BaseDevice, fhem: Fhem):
         self._device = device
