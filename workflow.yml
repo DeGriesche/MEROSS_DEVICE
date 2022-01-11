@@ -1,0 +1,27 @@
+name: update_controls
+
+on:
+  push:
+
+jobs:
+  linux:
+    name: Update controls file
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node_version: [8.x]
+    steps:
+    - uses: actions/checkout@v1
+    - name: Make executeable
+      run: chmod +x ./prepare_update.sh
+    - name: script
+      run: ./prepare_update.sh
+      shell: bash
+    - name: Commit & Push changes
+      uses: actions-js/push@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: master
+        message: 'prepare update'
+        author_name: Action
+        author_email: mano.pavlakis@gmail.com
