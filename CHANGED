@@ -1,12 +1,12 @@
 MEROSS DEVICE last changes:
-2022-01-11
-- gitlab workflow
-- Add files via upload
-- gitlab workflow
+2022-01-14
 - Merge remote-tracking branch 'origin/master'
 - gitlab workflow
 - Rename workflow.yml to .github/workflows/workflow.yml
 - Delete .github/_workflows directory
 - prepare update
 - gitlab workflow
+- Merge remote-tracking branch 'origin/master'
+- prepare update
+- meross test
 - Merge remote-tracking branch 'origin/master'
