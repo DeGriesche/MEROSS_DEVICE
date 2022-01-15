@@ -1,11 +1,11 @@
 MEROSS DEVICE last changes:
-2022-01-14
-- Merge remote-tracking branch 'origin/master'
-- gitlab workflow
-- Rename workflow.yml to .github/workflows/workflow.yml
+2022-01-15
 - Delete .github/_workflows directory
 - prepare update
 - gitlab workflow
+- Merge remote-tracking branch 'origin/master'
+- prepare update
+- meross test
 - Merge remote-tracking branch 'origin/master'
 - prepare update
 - meross test
