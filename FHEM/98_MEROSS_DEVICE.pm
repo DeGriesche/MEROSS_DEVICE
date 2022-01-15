@@ -74,7 +74,7 @@ sub MEROSS_DEVICE_Set($@) {
 		reloadPythonScript();
 	} elsif ($cmd eq "shutdown") {
 	} else {
-		return "Unknown argument $cmd, choose one of open:noArg close:noArg position:slider,0,100,100 getStatus:noArg getDeviceType:noArg reload:noArg shutdown:noArg" ;
+		return "Unknown argument $cmd, choose one of on:noArg off:noArg open:noArg close:noArg position:slider,0,100,100 getStatus:noArg getDeviceType:noArg reload:noArg shutdown:noArg" ;
 	}
 	return (undef, 0);
 }

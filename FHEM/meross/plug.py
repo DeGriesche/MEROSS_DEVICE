@@ -1,94 +1,45 @@
-import logging
-
 from fhem import Fhem
 from meross_iot.controller.device import BaseDevice
-from meross_iot.model.enums import Namespace, OnlineStatus
+from meross_iot.controller.mixins.toggle import ToggleMixin
+from meross_iot.model.enums import Namespace
 
-_logger = logging.getLogger("meross_device")
-
-
-class FhemDeviceError(object):
-    pass
+from FHEM.meross.meross_device import _logger
+from FHEM.meross.meross_fhem_device import MerossFhemDevice
 
 
-class Plug:
+class Plug(MerossFhemDevice):
 
-    def __init__(self, device: BaseDevice, fhem: Fhem):
-        self._device = device
-        self._fhem = fhem
-        fhem_devices = fhem.get(device_type=["MEROSS_DEVICE"], filters={"deviceId": str(device.uuid)})
-        if len(fhem_devices) > 0:
-            self._fhem_device = fhem_devices[0]
-        else:
-            raise FhemDeviceError('No FHEM MEROSS_DEVICE found for deviceId ' + device.uuid)
-        device.register_push_notification_handler_coroutine(self.on_meross_push_notification)
+    def __init__(self, meross_device: BaseDevice, fhem: Fhem):
+        MerossFhemDevice.__init__(self, meross_device, fhem)
 
-    def __str__(self):
-        return str(self.meross_name()) + " [" + str(self.fhem_name()) + "] - " + str(self.meross_id())
-
-    async def async_update(self):
-        if self._device.online_status == OnlineStatus.ONLINE:
-            await self._device.async_update()
-
-    def meross_id(self):
-        return self._device.uuid
-
-    def meross_name(self):
-        return self._device.name
-
-    def fhem_name(self):
-        return self._fhem_device['Name']
-
-    def status(self):
-        return self._device.online_status
-
-    def device_type(self):
-        return self._device.type
-
-    def is_open(self):
-        return self._device.get_is_open()
-
-    async def open(self):
-        _logger.info(f"Opening {self.meross_name()}...")
-        await self._device.async_open(chanel=0)
-        _logger.debug("Door opened!")
-
-    async def close(self):
-        _logger.info(f"Closing {self.meross_name()}...")
-        await self._device.async_close()
-        _logger.debug("Door closed!")
-
-    def set_fhem_state(self, opened: bool):
-        cmd: str = "setreading {} state {}".format(self.fhem_name(), "opened" if opened else "closed")
-        _logger.info("FHEM: " + cmd)
-        self._fhem.send_cmd(cmd)
-
-    def set_fhem_device_type(self, device_type: str):
-        cmd: str = "setreading {} deviceType {}".format(self.fhem_name(), device_type)
-        _logger.info("FHEM: " + cmd)
-        self._fhem.send_cmd(cmd)
-
-    async def on_meross_push_notification(self, namespace: Namespace, data: dict, device_internal_id: str):
-        _logger.debug(">>>> ONPUSH " + str(namespace) + " [" + str(device_internal_id) + "]")
-        _logger.debug("\t" + str(data))
-        _logger.debug("<<<")
-
-        if namespace == Namespace.GARAGE_DOOR_STATE:
-            self.set_fhem_state(data['state'][0]['open'])
+    async def _on_meross_push_notification(self, namespace: Namespace, data: dict, device_internal_id: str):
+        if namespace == Namespace.CONTROL_TOGGLEX:
+            state: str = "on" if data['togglex'][0]['onoff'] == 0 else "off"
+            self._set_fhem_state(state)
 
     async def on_fhem_action(self, action):
         _logger.debug("New Action: " + str(action))
         if action['reading'] == 'STATE':
-            if action['value'] == 'open':
-                await self.open()
-            elif action['value'] == 'close':
-                await self.close()
+            if action['value'] == 'on':
+                if not self._is_on():
+                    await self._turn_on()
+            elif action['value'] == 'off':
+                if self._is_on():
+                    await self._turn_off()
             elif action['value'] == "getStatus":
-                self.set_fhem_state(self.is_open())
+                self._set_fhem_state(self._meross_device_is_open())
             elif action['value'] == "getDeviceType":
-                self.set_fhem_device_type(self.device_type())
-        elif action['reading'] == "position":
-            if action['value'] == "0":
-                await self.close()
-            elif action['value'] == "1":
-                await self.open()
+                self._set_fhem_device_type(self._meross_device_type())
+
+    def _is_on(self):
+        return ToggleMixin(self._merossDevice).is_on()
+
+    async def _turn_on(self):
+        _logger.info(f"Set {self._meross_device_name()} on...")
+        await ToggleMixin(self._merossDevice).async_turn_on()
+        _logger.debug("Door opened!")
+
+    async def _turn_off(self):
+        _logger.info(f"Set {self._meross_device_name()} off...")
+        await ToggleMixin(self._merossDevice).async_turn_off()
+        _logger.debug("Door closed!")
