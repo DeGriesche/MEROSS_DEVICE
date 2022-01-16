@@ -98,7 +98,7 @@ sub X_Shutdown ($) {
 sub reloadPythonScript() {
 	my $runningProcesses = qx "pgrep -fl [m]eross_daemon.py | wc -l";
 	if ($runningProcesses == "0") {
-		{ system("python /opt/fhem/FHEM/meross/meross_daemon.py &") };
+		{ system("python3 /opt/fhem/FHEM/meross/meross_daemon.py &") };
 	}
 }
 
