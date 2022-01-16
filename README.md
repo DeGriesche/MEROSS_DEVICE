@@ -7,3 +7,10 @@ update add https://raw.githubusercontent.com/DeGriesche/MEROSS_DEVICE/master/con
 update check meross_device
 update all meross_device
 ```
+
+## Python dependencies
+
+```
+pip install fhem 
+pip install meross_iot
+```

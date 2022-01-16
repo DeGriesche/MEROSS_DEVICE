@@ -1,7 +1,6 @@
 import asyncio
 import configparser
 import logging.config
-import os
 from queue import Queue
 import threading
 from threading import Thread
@@ -10,7 +9,7 @@ import fhem
 from meross_iot.http_api import MerossHttpClient
 from meross_iot.manager import MerossManager
 
-from FHEM.meross.plug import Plug
+from src.meross_device.plug import Plug
 from garage_door_opener import GarageDoorOpener
 
 #_configApplication = "/opt/fhem/FHEM/meross/config.ini"

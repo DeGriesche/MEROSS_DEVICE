@@ -11,7 +11,6 @@ sub MEROSS_DEVICE_Initialize($) {
 	$hash->{AttrFn} = 'MEROSS_DEVICE_Attr';
 	$hash->{ShutdownFn} = "MEROSS_DEVICE_Shutdown";
 
-
 	reloadPythonScript();
 	AnalyzeCommand($hash, "set MEROSS_DEVICE getStatus");
 }
@@ -63,9 +62,9 @@ sub MEROSS_DEVICE_Set($@) {
 		readingsBulkUpdate($hash, "position", "0");
 		readingsEndUpdate($hash, 1);
 	} elsif ($cmd eq "on") {
-		
+		# Do nothing
 	} elsif ($cmd eq "off") {
-		
+		# Do nothing
 	} elsif ($cmd eq "position") {
 		if ($args[0] eq 0) {
 			readingsSingleUpdate($hash, "state", "close", 1);

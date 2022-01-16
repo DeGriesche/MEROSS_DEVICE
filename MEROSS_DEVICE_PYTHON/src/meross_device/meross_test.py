@@ -3,22 +3,24 @@ import configparser
 import logging.config
 import os
 import threading
+from asyncio import AbstractEventLoop
 from queue import Queue
 
 import fhem
 from meross_iot.http_api import MerossHttpClient
 from meross_iot.manager import MerossManager
 
-from FHEM.meross.plug import Plug
+from src.meross_device.plug import Plug
 from garage_door_opener import GarageDoorOpener
 
-#_configApplication = "/opt/fhem/FHEM/meross/config.ini"
-#_configLogging = "/opt/fhem/FHEM/meross/logging.conf"
+# _configApplication = "/opt/fhem/FHEM/meross/config.ini"
+# _configLogging = "/opt/fhem/FHEM/meross/logging.conf"
 _configApplication = "config.ini"
 _configLogging = "logging.conf"
 
 logging.config.fileConfig(_configLogging)
 _logger = logging.getLogger("meross_device")
+
 
 class Meross:
 
@@ -32,7 +34,7 @@ class Meross:
         self._config = configparser.ConfigParser()
         self._config.read(_configApplication)
 
-    async def run(self):
+    async def run(self, loop):
         _logger.info("----- CONNECTING TO FHEM -----")
         fhem_connection = self.connect_fhem()
 
@@ -57,7 +59,7 @@ class Meross:
 
         _logger.info("----- START LISTEN TO FHEM -----")
         que = Queue()
-        t = threading.Thread(target=self.start_listen_to_fhem, args=(que,))
+        t = threading.Thread(target=self.start_listen_to_fhem, args=(que, loop))
         t.daemon = True
         t.start()
 
@@ -69,23 +71,25 @@ class Meross:
     def connect_fhem(self):
         _logger.info('Establishing FHEM connection')
         config = self._config["FHEM"]
-        return fhem.Fhem(config["basePath"], protocol=config["protocol"], port=config["port"], username=config["user"], password=config["password"])
+        return fhem.Fhem(config["basePath"], protocol=config["protocol"], port=config["port"], username=config["user"],
+                         password=config["password"])
 
     async def connect_meross(self):
         config = self._config["MEROSS"]
-        self._http_api_client = await MerossHttpClient.async_from_user_password(email=config["user"], password=config["password"])
+        self._http_api_client = await MerossHttpClient.async_from_user_password(email=config["user"],
+                                                                                password=config["password"])
         meross = MerossManager(http_client=self._http_api_client)
         await meross.async_init()
         await meross.async_device_discovery()
         return meross
 
-    def start_listen_to_fhem(self, que: Queue):
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(self.listen_to_fhem(que))
-        loop.close()
+    def start_listen_to_fhem(self, que: Queue, loop: AbstractEventLoop):
+        loop2 = asyncio.new_event_loop()
+        #        asyncio.set_event_loop(loop)
+        loop2.run_until_complete(self.listen_to_fhem(que, loop))
+        loop2.close()
 
-    async def listen_to_fhem(self, que: Queue):
+    async def listen_to_fhem(self, que: Queue, loop: AbstractEventLoop):
         self._fhem_event_queue = fhem.FhemEventQueue(self._config["FHEM"]["basePath"], que)
         while True:
             ev = que.get()
@@ -95,7 +99,8 @@ class Meross:
                     await self.shutdown()
                 else:
                     meross_device = self._devices_by_fhem_name.get(ev['device'])
-                    await meross_device.on_fhem_action(ev)
+                    loop.create_task(meross_device.on_fhem_action(ev))
+                    #await meross_device.on_fhem_action(ev)
             que.task_done()
 
 
@@ -105,6 +110,5 @@ if __name__ == '__main__':
     if os.name == 'nt':
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(Meross().run())
+    loop.run_until_complete(Meross().run(loop))
     loop.close()
-
