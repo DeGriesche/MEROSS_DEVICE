@@ -1,12 +1,12 @@
 MEROSS DEVICE last changes:
 2022-01-16
-- prepare update
-- meross test
 - Merge remote-tracking branch 'origin/master'
 - prepare update
 - meross test
 - Merge remote-tracking branch 'origin/master'
 - prepare update
 - Update 98_MEROSS_DEVICE.pm
+- prepare update
+- Splitting Perls and Python
 - prepare update
 - Splitting Perls and Python
