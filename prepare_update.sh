@@ -8,7 +8,7 @@ do
     FILESIZE=$(stat -c%s "$FILE")
 	FILE=$(echo "$FILE"  | cut -c 3-)
 	printf "UPD %s %-7d %s\n" "$TIME" "$FILESIZE" "$FILE"  >> controls_meross_device.txt
-done <   <(find . \( -name "*.pm" -o -name "*.txt" -o -name "*.svg" \) -print0 | sort -z -g)
+done <   <(find . \( -name "*.pm" -o -name "*.py" -o -name "logging.conf" -o -name "_config.ini" \) -print0 | sort -z -g)
 
 # CHANGED file
 echo "MEROSS DEVICE last changes:" > CHANGED

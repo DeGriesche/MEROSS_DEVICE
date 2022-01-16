@@ -8,6 +8,8 @@ update check meross_device
 update all meross_device
 ```
 
+Rename  `_config.ini` to `config.ini` at `fhem/FHEM/meross/` and fill properties.
+
 ## Python dependencies
 
 ```
