@@ -7,3 +7,5 @@
 *.iml
 
 **/dist
+
+config.ini
