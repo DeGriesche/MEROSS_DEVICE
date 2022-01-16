@@ -62,6 +62,10 @@ sub MEROSS_DEVICE_Set($@) {
 		readingsBeginUpdate($hash);
 		readingsBulkUpdate($hash, "position", "0");
 		readingsEndUpdate($hash, 1);
+	} elsif ($cmd eq "on") {
+		
+	} elsif ($cmd eq "off") {
+		
 	} elsif ($cmd eq "position") {
 		if ($args[0] eq 0) {
 			readingsSingleUpdate($hash, "state", "close", 1);
