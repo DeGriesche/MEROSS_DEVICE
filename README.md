@@ -13,4 +13,5 @@ update all meross_device
 ```
 pip install fhem 
 pip install meross_iot
+pip install python-daemon
 ```
