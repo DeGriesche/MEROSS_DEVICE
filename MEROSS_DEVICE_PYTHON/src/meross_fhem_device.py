@@ -1,16 +1,18 @@
+from logging import Logger
+
 from fhem import Fhem
 from meross_iot.model.enums import Namespace
 
-from src.meross_device.fhem_device import FhemDevice
-from src.meross_device.meross_device import MerossDevice
+from fhem_device import FhemDevice
+from meross_device import MerossDevice
 
 
 class MerossFhemDevice(MerossDevice, FhemDevice):
 
-    def __init__(self, meross_device, fhem: Fhem):
+    def __init__(self, meross_device, fhem: Fhem, logger: Logger):
         self.__meross_device = meross_device
         MerossDevice.__init__(self, meross_device)
-        FhemDevice.__init__(self, fhem, meross_device.uuid)
+        FhemDevice.__init__(self, fhem, meross_device.uuid, logger)
 
     def __str__(self):
         return self.__meross_device.name + " [" + self._fhem_device_name() + "] - " + self.__meross_device.uuid

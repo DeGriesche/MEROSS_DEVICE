@@ -1,8 +1,6 @@
-import logging
+from logging import Logger
 
 from fhem import Fhem
-
-_logger = logging.getLogger("fhem_device")
 
 
 class FhemDeviceError(Exception):
@@ -11,8 +9,9 @@ class FhemDeviceError(Exception):
 
 class FhemDevice:
 
-    def __init__(self, fhem: Fhem, device_id: str):
+    def __init__(self, fhem: Fhem, device_id: str, logger: Logger):
         self._fhem = fhem
+        self.__logger = logger
         fhem_devices = fhem.get(device_type=["MEROSS_DEVICE"], filters={"deviceId": device_id})
 
         if fhem_devices is not None and len(fhem_devices) > 0:
@@ -28,10 +27,10 @@ class FhemDevice:
 
     def _set_fhem_state(self, value: str):
         cmd: str = "setreading {} state {}".format(self._fhem_device_name(), value)
-        _logger.info("FHEM: " + cmd)
+        self.__logger.info("FHEM: " + cmd)
         self._fhem.send_cmd(cmd)
 
     def _set_fhem_device_type(self, device_type: str):
         cmd: str = "setreading {} deviceType {}".format(self._fhem_device_name(), device_type)
-        _logger.info("FHEM: " + cmd)
+        self.__logger.info("FHEM: " + cmd)
         self._fhem.send_cmd(cmd)

@@ -2,6 +2,7 @@
 requires = [
     "setuptools>=42",
     "wheel",
+    "python-daemon",
     "meross_iot",
     "fhem"
 ]
