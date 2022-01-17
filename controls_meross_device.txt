@@ -2,9 +2,9 @@ UPD 2022-01-16_20:26:44 3156    FHEM/98_MEROSS_DEVICE.pm
 UPD 2022-01-16_20:30:06 171     FHEM/meross/_config.ini
 UPD 2022-01-17_20:07:50 1187    FHEM/meross/fhem_device.py
 UPD 2022-01-17_20:07:50 1905    FHEM/meross/garage_door_opener.py
-UPD 2022-01-17_20:07:50 824     FHEM/meross/logging.conf
-UPD 2022-01-17_20:15:33 4424    FHEM/meross/meross.py
+UPD 2022-01-17_20:24:30 823     FHEM/meross/logging.conf
+UPD 2022-01-17_20:24:30 4428    FHEM/meross/meross.py
 UPD 2022-01-16_20:26:44 81      FHEM/meross/meross_daemon.py
 UPD 2022-01-17_20:07:50 976     FHEM/meross/meross_device.py
 UPD 2022-01-17_20:07:50 1117    FHEM/meross/meross_fhem_device.py
-UPD 2022-01-17_20:07:50 1787    FHEM/meross/plug.py
+UPD 2022-01-17_20:24:30 1788    FHEM/meross/plug.py
