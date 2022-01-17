@@ -105,7 +105,7 @@ class Meross:
                 else:
                     meross_device = self._devices_by_fhem_name.get(ev['device'])
                     _logger.info("FHEM event: " + str(ev))
-                loop.create_task(meross_device.on_fhem_action(ev))
+                    loop.create_task(meross_device.on_fhem_action(ev))
             que.task_done()
 
 

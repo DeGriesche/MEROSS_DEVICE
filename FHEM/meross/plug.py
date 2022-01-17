@@ -39,7 +39,7 @@ class Plug(MerossFhemDevice):
         return self.__meross_device.is_on()
 
     async def _turn_on(self):
-        self.__logger.deug(f"Set {self._meross_device_name()} on...")
+        self.__logger.debug(f"Set {self._meross_device_name()} on...")
         await self.__meross_device.async_turn_on()
 
     async def _turn_off(self):
