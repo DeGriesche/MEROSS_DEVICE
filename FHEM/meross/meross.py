@@ -10,7 +10,7 @@ import fhem
 from meross_iot.http_api import MerossHttpClient
 from meross_iot.manager import MerossManager
 
-from FHEM.meross.meross_fhem_device import MerossFhemDevice
+from meross_fhem_device import MerossFhemDevice
 from garage_door_opener import GarageDoorOpener
 from plug import Plug
 
