@@ -8,6 +8,9 @@ class MerossDevice:
         self.__meross_device = meross_device
         self.__meross_device.register_push_notification_handler_coroutine(self._on_meross_push_notification)
 
+    def _shutdown(self):
+        self.__meross_device.unregister_push_notification_handler_coroutine(self._on_meross_push_notification)
+
     async def _on_meross_push_notification(self, namespace: Namespace, data: dict, device_internal_id: str):
         raise NotImplementedError('Push notification handling not implemented for deviceId ' + device_internal_id)
 

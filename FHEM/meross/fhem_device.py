@@ -27,10 +27,10 @@ class FhemDevice:
 
     def _set_fhem_state(self, value: str):
         cmd: str = "setreading {} state {}".format(self._fhem_device_name(), value)
-        self.__logger.info("FHEM: " + cmd)
+        self.__logger.debug("FHEM: " + cmd)
         self._fhem.send_cmd(cmd)
 
     def _set_fhem_device_type(self, device_type: str):
         cmd: str = "setreading {} deviceType {}".format(self._fhem_device_name(), device_type)
-        self.__logger.info("FHEM: " + cmd)
+        self.__logger.debug("FHEM: " + cmd)
         self._fhem.send_cmd(cmd)

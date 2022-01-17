@@ -22,7 +22,6 @@ class GarageDoorOpener(MerossFhemDevice):
             self._set_fhem_state(self.STATE_CLOSE if data['togglex'][0]['open'] == 0 else self.STATE_OPEN)
 
     async def on_fhem_action(self, action):
-        self.__logger.debug("New Action: " + str(action))
         if action['reading'] == 'STATE':
             if action['value'] == self.STATE_OPEN:
                 await self._open()
@@ -42,11 +41,9 @@ class GarageDoorOpener(MerossFhemDevice):
         return self.__meross_device.get_is_open()
 
     async def _open(self):
-        self.__logger.info(f"Opening {self._meross_device_name()}...")
+        self.__logger.debug(f"Opening {self._meross_device_name()}...")
         await self.__meross_device.async_open()
-        self.__logger.debug("Door opened!")
 
     async def _close(self):
-        self.__logger.info(f"Closing {self._meross_device_name}...")
+        self.__logger.debug(f"Closing {self._meross_device_name}...")
         await self.__meross_device.async_close()
-        self.__logger.debug("Door closed!")

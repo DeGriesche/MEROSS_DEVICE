@@ -14,6 +14,9 @@ class MerossFhemDevice(MerossDevice, FhemDevice):
         MerossDevice.__init__(self, meross_device)
         FhemDevice.__init__(self, fhem, meross_device.uuid, logger)
 
+    def shutdown(self):
+        MerossDevice._shutdown(self)
+
     def __str__(self):
         return self.__meross_device.name + " [" + self._fhem_device_name() + "] - " + self.__meross_device.uuid
 

@@ -23,7 +23,6 @@ class Plug(MerossFhemDevice):
             self._set_fhem_state(self.STATE_OFF if data['togglex'][0]['onoff'] == 0 else self.STATE_ON)
 
     async def on_fhem_action(self, action):
-        self.__logger.info("New Action: " + str(action))
         if action['reading'] == 'STATE':
             if action['value'] == self.STATE_ON:
                 if not self._is_on():
@@ -40,11 +39,9 @@ class Plug(MerossFhemDevice):
         return self.__meross_device.is_on()
 
     async def _turn_on(self):
-        self.__logger.info(f"Set {self._meross_device_name()} on...")
+        self.__logger.deug(f"Set {self._meross_device_name()} on...")
         await self.__meross_device.async_turn_on()
-        self.__logger.debug("Door opened!")
 
     async def _turn_off(self):
-        self.__logger.info(f"Set {self._meross_device_name()} off...")
+        self.__logger.debug(f"Set {self._meross_device_name()} off...")
         await self.__meross_device.async_turn_off()
-        self.__logger.debug("Door closed!")
