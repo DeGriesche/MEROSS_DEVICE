@@ -14,10 +14,10 @@ from FHEM.meross.meross_fhem_device import MerossFhemDevice
 from garage_door_opener import GarageDoorOpener
 from plug import Plug
 
-#_configApplication = "/opt/fhem/FHEM/meross/config.ini"
-#_configLogging = "/opt/fhem/FHEM/meross/logging.conf"
-_configApplication = "config.ini"
-_configLogging = "logging.conf"
+_configApplication = "/opt/fhem/FHEM/meross/config.ini"
+_configLogging = "/opt/fhem/FHEM/meross/logging.conf"
+#_configApplication = "config.ini"
+#_configLogging = "logging.conf"
 
 logging.config.fileConfig(_configLogging)
 _logger = logging.getLogger("meross_device")
